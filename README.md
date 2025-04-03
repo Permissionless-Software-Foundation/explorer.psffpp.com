@@ -1,15 +1,15 @@
-# bch-wallet-web3-spa
+# explorer.psffpp.com
 
-This is a web-based single page app (SPA) written in React. It provides non-custodial wallet features for the Bitcoin Cash blockchain, including support for SLP tokens and NFTs.
+The primary purpose of this app is to provide uploading, downloading, and file exploration tools for the [PSFFPP](https://psffpp.com) decentralized file sharing network.
 
-The code repository is the successor to [bch-wallet-web-android](https://github.com/Permissionless-Software-Foundation/bch-wallet-web3-android). It is forked from [react-bootstrap-web3-spa](https://github.com/Permissionless-Software-Foundation/react-bootstrap-web3-spa), and any updates to that upstream repository are pulled into this repository. The individual wallet components from bch-wallet-web-android have been audited, refactored, and ported to this repository. It a complete rewrite of the original codebase.
+This is a web-based single page app (SPA) written in React. It provides non-custodial wallet features for the Bitcoin Cash blockchain, including support for SLP tokens and NFTs. It is forked from [bch-wallet-web-spa](https://github.com/Permissionless-Software-Foundation/bch-wallet-web3-spa), and any updates to that upstream repository are pulled into this repository.
 
-This code repository is intended to be a boilerplate for creating creative BCH-based web apps. It is built on top of the [Cash Stack](https://cashstack.info) web3 architecture, which provides a censorship-resistant back-end for accessing the Bitcoin Cash blockchain.
+On top of that base, are features and screens for interacting with the PSFFPP network.
 
 ## Installation
 ```bash
-git clone https://github.com/Permissionless-Software-Foundation/bch-wallet-web3-spa
-cd bch-wallet-web3-spa
+git clone https://github.com/Permissionless-Software-Foundation/explorer.psffpp.com
+cd explorer.psffpp.com
 npm install
 npm start
 npm run build
