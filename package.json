@@ -24,7 +24,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "echo \"No tests\"",
+    "test": "echo 'no tests'",
     "eject": "react-scripts eject",
     "lint": "standard --env mocha --fix",
     "pub": "node deploy/publish-main.js",
@@ -46,8 +46,23 @@
     ]
   },
   "devDependencies": {
+    "husky": "9.1.7",
     "minimal-slp-wallet": "5.13.1",
+    "semantic-release": "24.2.3",
     "standard": "17.0.0",
     "web3.storage": "4.3.0"
+  },
+  "release": {
+    "publish": [
+      {
+        "path": "@semantic-release/npm",
+        "npmPublish": false
+      }
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
   }
 }
