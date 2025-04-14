@@ -84,6 +84,13 @@ function NavMenu (props) {
             >
               Sign
             </NavLink>
+            <NavLink
+              className={(currentPath === '/explorer') ? 'nav-link-active' : 'nav-link-inactive'}
+              to='/explorer'
+              onClick={handleClickEvent}
+            >
+              Explorer
+            </NavLink>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
