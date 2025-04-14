@@ -31,12 +31,19 @@ function NavMenu (props) {
       <Navbar expanded={expanded} onToggle={setExpanded} expand='xxxl' bg='dark' variant='dark' style={{ paddingRight: '20px' }}>
         <Navbar.Brand href='#home' style={{ paddingLeft: '20px' }}>
           <Image src={Logo} thumbnail width='50' />{' '}
-          PSF Web3 Demo
+          FPP Explorer
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls='responsive-navbar-nav' />
         <Navbar.Collapse id='responsive-navbar-nav'>
           <Nav className='mr-auto'>
+            <NavLink
+              className={(currentPath === '/explorer') ? 'nav-link-active' : 'nav-link-inactive'}
+              to='/explorer'
+              onClick={handleClickEvent}
+            >
+              Explorer
+            </NavLink>
 
             <NavLink
               className={(currentPath === '/bch' || currentPath === '/') ? 'nav-link-active' : 'nav-link-inactive'}
@@ -77,6 +84,7 @@ function NavMenu (props) {
             >
               Sweep
             </NavLink>
+
             <NavLink
               className={(currentPath === '/sign') ? 'nav-link-active' : 'nav-link-inactive'}
               to='/sign'
@@ -84,12 +92,15 @@ function NavMenu (props) {
             >
               Sign
             </NavLink>
+
+            
+
             <NavLink
-              className={(currentPath === '/explorer') ? 'nav-link-active' : 'nav-link-inactive'}
-              to='/explorer'
+              className={currentPath === '/configuration' ? 'nav-link-active' : 'nav-link-inactive'}
+              to='/configuration'
               onClick={handleClickEvent}
             >
-              Explorer
+              Configuration
             </NavLink>
           </Nav>
         </Navbar.Collapse>
