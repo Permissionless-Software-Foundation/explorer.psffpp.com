@@ -1,7 +1,10 @@
+// Global libraries
 import React, { useEffect, useState } from 'react'
 import { Spinner } from 'react-bootstrap'
-import ExplorerTable from './table'
 import axios from 'axios'
+
+// Local libraries
+import ExplorerTable from './table'
 
 const Explorer = ({ appData }) => {
   const [pins, setPins] = useState([])
@@ -13,7 +16,7 @@ const Explorer = ({ appData }) => {
       setOnFetch(true)
       console.log(appData.serverUrl)
       console.log(appData)
-      const url = `${appData.serverUrl}/ipfs/pins`
+      const url = `${appData.serverUrl}/ipfs/pins/1`
       const response = await axios.get(url)
       const data = response.data
       console.log(data)

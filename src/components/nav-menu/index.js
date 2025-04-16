@@ -93,8 +93,6 @@ function NavMenu (props) {
               Sign
             </NavLink>
 
-            
-
             <NavLink
               className={currentPath === '/configuration' ? 'nav-link-active' : 'nav-link-inactive'}
               to='/configuration'
