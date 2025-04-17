@@ -22,7 +22,8 @@ import SlpTokens from './slp-tokens'
 import SweepWif from './sweep/index.js'
 import SignMessage from './sign/index.js'
 import Explorer from './explorer/index.js'
-import ServerSelectView from './configuration/select-server-view'
+import ServerSelectView from './configuration/index.js'
+import PinClaim from './pin-claim/index.js'
 
 function AppBody (props) {
   // Dependency injection through props
@@ -43,6 +44,7 @@ function AppBody (props) {
         <Route path='/sign' element={<SignMessage appData={appData} />} />
         <Route path='/explorer' element={<Explorer appData={appData} />} />
         <Route path='/configuration' element={<ServerSelectView appData={appData} />} />
+        <Route path='/pin-claim' element={<PinClaim appData={appData} />} />
       </Routes>
       {/** Show in all paths except the servers view */}
       {/* {appData.currentPath !== '/servers' && <SelectServerButton linkTo='/servers' appData={appData} />} */}

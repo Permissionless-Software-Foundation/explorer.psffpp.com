@@ -100,6 +100,13 @@ function NavMenu (props) {
             >
               Configuration
             </NavLink>
+            <NavLink
+              className={currentPath === '/pin-file' ? 'nav-link-active' : 'nav-link-inactive'}
+              to='/pin-claim'
+              onClick={handleClickEvent}
+            >
+              Pin Claim
+            </NavLink>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
