@@ -24,7 +24,7 @@ function useAppState () {
   const [menuState, setMenuState] = useState(0)
   const [wallet, setWallet] = useState(false)
   const [servers, setServers] = useState([])
-  const [defaultFileStagerServerUrl] = useState('https://file-stager.fullstack.cash') // Default file stager server url
+  const [defaultFileStagerServerUrl] = useState('https://file-stage.fullstack.cash') // Default file stager server url
   const [fileStagerServerUrl, setFileStagerServerUrl] = useState(lsState.fileStagerServerUrl || defaultFileStagerServerUrl) // Selected file stager server url
 
   // Startup state management
