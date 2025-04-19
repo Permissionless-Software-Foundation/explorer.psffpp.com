@@ -17,7 +17,7 @@ const Explorer = ({ appData }) => {
         setOnFetch(true)
         console.log(appData.serverUrl)
         console.log(appData)
-        const url = `${appData.serverUrl}/ipfs/pins/`
+        const url = `${appData.serverUrl}/ipfs/pins/1`
         const response = await axios.get(url)
         const data = response.data
         console.log(data)

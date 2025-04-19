@@ -128,6 +128,14 @@ const PinClaim = ({ appData }) => {
         <FontAwesomeIcon icon={faCloudUploadAlt} className='me-2' />
         Upload and Pin Content
       </h2>
+
+      <p>
+        Use this page to upload a file and then pin it to the PSFFPP network.
+        Note that your wallet must have BCH and PSF tokens to pay for the pinning of content.
+        Files must be less than 100MB is size. The cost to pin content is roughly
+        $0.01 per MB, and pins last for one year. Pins can be renewed at any time.
+      </p>
+
       <Form>
         <Form.Group className='mb-3'>
           <div

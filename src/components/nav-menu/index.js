@@ -46,6 +46,14 @@ function NavMenu (props) {
             </NavLink>
 
             <NavLink
+              className={currentPath === '/pin-file' ? 'nav-link-active' : 'nav-link-inactive'}
+              to='/pin-claim'
+              onClick={handleClickEvent}
+            >
+              Upload
+            </NavLink>
+
+            <NavLink
               className={(currentPath === '/bch' || currentPath === '/') ? 'nav-link-active' : 'nav-link-inactive'}
               to='/bch'
               onClick={handleClickEvent}
@@ -100,13 +108,7 @@ function NavMenu (props) {
             >
               Configuration
             </NavLink>
-            <NavLink
-              className={currentPath === '/pin-file' ? 'nav-link-active' : 'nav-link-inactive'}
-              to='/pin-claim'
-              onClick={handleClickEvent}
-            >
-              Pin Claim
-            </NavLink>
+            
           </Nav>
         </Navbar.Collapse>
       </Navbar>
