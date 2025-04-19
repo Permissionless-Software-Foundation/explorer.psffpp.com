@@ -12,7 +12,8 @@ function useAppState () {
   const [lsState, setLSState, { removeItem }] = useLocalStorageState('bchWalletState-template', {
     ssr: true,
     defaultValue: {
-      serverUrl: 'https://free-bch.fullstack.cash' // Default server
+      serverUrl: 'https://free-bch.fullstack.cash', // Default server
+      fileStagerServerUrl: 'https://file-stager.fullstack.cash' // Default file stager server url
     }
   })
 
@@ -23,6 +24,8 @@ function useAppState () {
   const [menuState, setMenuState] = useState(0)
   const [wallet, setWallet] = useState(false)
   const [servers, setServers] = useState([])
+  const [defaultFileStagerServerUrl] = useState('https://file-stager.fullstack.cash') // Default file stager server url
+  const [fileStagerServerUrl, setFileStagerServerUrl] = useState(lsState.fileStagerServerUrl || defaultFileStagerServerUrl) // Selected file stager server url
 
   // Startup state management
   const [asyncInitStarted, setAsyncInitStarted] = useState(false)
@@ -125,8 +128,10 @@ function useAppState () {
     updateLocalStorage,
     updateBchWalletState,
     appUtil: new AppUtil(),
-    currentPath: location.pathname
-
+    currentPath: location.pathname,
+    defaultFileStagerServerUrl,
+    fileStagerServerUrl,
+    setFileStagerServerUrl
   }
 }
 

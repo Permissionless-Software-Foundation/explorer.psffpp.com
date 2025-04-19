@@ -4,11 +4,11 @@
 */
 
 // Global npm libraries
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Row, Col, Form, Card } from 'react-bootstrap'
 
 function ServerSelectView (props) {
-  const { appData } = props
+  const { appData, onSubmitRef, onSubmitAll } = props
   const [selectedServer, setSelectedServer] = useState(appData.serverUrl)
   const servers = appData.servers
 
@@ -17,11 +17,18 @@ function ServerSelectView (props) {
     setSelectedServer(event.target.value)
   }
 
-  const onSaveServer = (serverUrl) => {
-    console.log('server target: ', serverUrl)
+  const onSaveServer = useCallback((serverUrl) => {
     appData.updateLocalStorage({ serverUrl })
     window.location.href = '/'
-  }
+  }, [appData])
+
+  // Add onSaveServer to onSubmitRef
+  // This is used to submit the form when the user clicks the  global save button
+  useEffect(() => {
+    if (onSubmitRef) {
+      onSubmitRef.current = () => onSaveServer(selectedServer)
+    }
+  }, [selectedServer, onSubmitRef, onSaveServer])
 
   return (
     <>
@@ -31,7 +38,7 @@ function ServerSelectView (props) {
             <button
               className='btn btn-primary'
               style={{ minWidth: '100px' }}
-              onClick={() => onSaveServer(selectedServer)}
+              onClick={() => onSubmitAll()}
             >
               Save
             </button>
