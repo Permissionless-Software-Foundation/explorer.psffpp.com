@@ -165,3 +165,51 @@ input[type=number] {
 .action-button.download-button:hover {
   background-color: #059669;
 }
+
+.pagination {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pagination .pagination-btn {
+  border: none !important;
+  background: white !important;
+  color: #665 !important;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.pagination .pagination-btn:hover:not(:disabled) {
+  background: #f8f9fa !important;
+  color: #333 !important;
+}
+
+.pagination .pagination-btn:disabled {
+  opacity: 0.5;
+  background: #f8f9fa !important;
+}
+
+.pagination .pagination-input {
+  border: none !important;
+  box-shadow: none !important;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+  color: #333;
+  padding: 0.5rem 1rem;
+}
+
+.pagination .pagination-input:focus {
+  background-color: #f8f9fa;
+}
+
+.pagination .pagination-input:disabled {
+  background-color: #f8f9fa;
+  opacity: 0.5;
+}
+
+.pagination .input-group-text {
+  border: none;
+  background: none;
+}

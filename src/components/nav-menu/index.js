@@ -38,7 +38,7 @@ function NavMenu (props) {
         <Navbar.Collapse id='responsive-navbar-nav'>
           <Nav className='mr-auto'>
             <NavLink
-              className={(currentPath === '/explorer') ? 'nav-link-active' : 'nav-link-inactive'}
+              className={(currentPath === '/explorer' || currentPath === '/') ? 'nav-link-active' : 'nav-link-inactive'}
               to='/explorer'
               onClick={handleClickEvent}
             >
@@ -54,7 +54,7 @@ function NavMenu (props) {
             </NavLink>
 
             <NavLink
-              className={(currentPath === '/bch' || currentPath === '/') ? 'nav-link-active' : 'nav-link-inactive'}
+              className={(currentPath === '/bch') ? 'nav-link-active' : 'nav-link-inactive'}
               to='/bch'
               onClick={handleClickEvent}
             >
@@ -108,7 +108,7 @@ function NavMenu (props) {
             >
               Configuration
             </NavLink>
-            
+
           </Nav>
         </Navbar.Collapse>
       </Navbar>

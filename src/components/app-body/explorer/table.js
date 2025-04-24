@@ -18,25 +18,35 @@ const ExplorerTable = ({ pins, appData }) => {
   const formatDate = (date) => {
     return new Date(date).toLocaleString()
   }
-
+  const formatFileSize = (bytes) => {
+    if (!bytes) return 'N/A'
+    const mb = bytes / (1024 * 1024)
+    if (mb < 0.01) {
+      const kb = bytes / 1024
+      return `${kb.toFixed(2)} KB`
+    }
+    return `${mb.toFixed(2)} MB`
+  }
   return (
-    <div className='explorer-table-container'>
+    <div className='explorer-table-container mb-4'>
       <table className='explorer-table'>
         <thead>
           <tr className='explorer-table-header'>
-            <th className='explorer-table-cell'>Filename</th>
+            <th className='explorer-table-cell'>File Name</th>
+            <th className='explorer-table-cell'>File Size</th>
             <th className='explorer-table-cell'>Recorded</th>
             <th className='explorer-table-cell'>Valid</th>
             <th className='explorer-table-cell'>Pinned</th>
             <th className='explorer-table-cell'>CID</th>
             <th className='explorer-table-cell'>View</th>
-            <th className='explorer-table-cell'>Download</th>
+            <th className='explorer-table-cell text-center'>Download</th>
           </tr>
         </thead>
         <tbody>
           {pins?.map((pin, index) => (
             <tr key={index} className='explorer-table-row'>
               <td className='explorer-table-cell'>{pin.filename}</td>
+              <td className='explorer-table-cell'>{formatFileSize(pin.fileSize)}</td>
               <td className='explorer-table-cell'>{formatDate(pin.recordTime)}</td>
               <td className='explorer-table-cell'>
                 {pin.validClaim
@@ -65,7 +75,7 @@ const ExplorerTable = ({ pins, appData }) => {
                   View
                 </button>
               </td>
-              <td className='explorer-table-cell'>
+              <td className='explorer-table-cell text-center'>
                 <button
                   onClick={() => handleDownload(pin)}
                   className='action-button download-button'
