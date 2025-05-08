@@ -151,7 +151,7 @@ const PinClaim = ({ appData }) => {
 
   return (
 
-    <Container className='mt-4 mb-4'>
+    <Container className='mt-4 mb-5'>
       <h2>
         <FontAwesomeIcon icon={faCloudUploadAlt} className='me-2' />
         Upload and Pin Content
