@@ -20,18 +20,18 @@ const PinClaim = ({ appData }) => {
   const fetchWritePrice = useCallback(async (file) => {
     try {
       if (!file) { return }
-      console.log('fetching file price')
+      console.log('Calculating BCH cost for file')
       setError('')
       setWritePriceData(null)
       setOnFetch(true)
       const fileSizeInMegabytes = file.size / 10 ** 6 // get file size in MB
       const server = appData.fileStagerServerUrl
-      const response = await axios.post(`${server}/ipfs/getPaymentAddr`, {
+      const response = await axios.post(`${server}/ipfs/getBchCost`, {
         sizeInMb: fileSizeInMegabytes
       })
 
-      const { address, bchCost } = response.data
-      setWritePriceData({ address, bchCost })
+      const bchCost = response.data
+      setWritePriceData({ bchCost })
       setOnFetch(false)
     } catch (error) {
       setOnFetch(false)
@@ -41,6 +41,7 @@ const PinClaim = ({ appData }) => {
   }, [appData.fileStagerServerUrl])
 
   const handleFileChange = async (e) => {
+    console.log('handleFileChange')
     const selectedFile = e.target.files[0]
     // Calculate the pin claim price for the selected file
     setFile(selectedFile)
@@ -50,6 +51,7 @@ const PinClaim = ({ appData }) => {
       setWritePriceData(null)
     }
     // update state after file changes
+    console.log('reseting state')
     resetState()
   }
 
@@ -138,7 +140,7 @@ const PinClaim = ({ appData }) => {
 
   return (
 
-    <Container className='mt-4'>
+    <Container className='mt-4 mb-4'>
       <h2>
         <FontAwesomeIcon icon={faCloudUploadAlt} className='me-2' />
         Upload and Pin Content
