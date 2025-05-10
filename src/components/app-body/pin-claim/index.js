@@ -14,7 +14,7 @@ const PinClaim = ({ appData }) => {
   const [cid, setCid] = useState(null)
   const [claimTxid, setClaimTxid] = useState(null)
   const [pobTxid, setPobTxid] = useState(null)
-
+  const fileInputRef = React.useRef(null)
   // Get write price
   useEffect(() => {
     const fetchWritePrice = async () => {
@@ -121,6 +121,16 @@ const PinClaim = ({ appData }) => {
     setPobTxid(null)
   }
 
+  const removeFile = (e) => {
+    e.preventDefault()
+    setFile(null)
+    resetState()
+    // remove file from input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
   return (
 
     <Container className='mt-4'>
@@ -153,6 +163,7 @@ const PinClaim = ({ appData }) => {
             }}
           >
             <Form.Control
+              ref={fileInputRef}
               type='file'
               onChange={handleFileChange}
               style={{ display: 'none' }}
@@ -163,7 +174,7 @@ const PinClaim = ({ appData }) => {
               {file && !onFetch && (
                 <>
                   {file?.name && <p>{file.name}</p>}
-                  <Button variant='outline-danger' type='button' onClick={(e) => { e.preventDefault(); setFile(null) }}>
+                  <Button variant='outline-danger' type='button' onClick={removeFile}>
                     Remove
                   </Button>
 

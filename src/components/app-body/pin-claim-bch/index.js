@@ -16,22 +16,23 @@ const PinClaim = ({ appData }) => {
   const [cid, setCid] = useState(null)
   const [claimTxid, setClaimTxid] = useState(null)
   const [pobTxid, setPobTxid] = useState(null)
+  const fileInputRef = React.useRef(null)
 
   const fetchWritePrice = useCallback(async (file) => {
     try {
       if (!file) { return }
-      console.log('fetching file price')
+      console.log('Calculating BCH cost for file')
       setError('')
       setWritePriceData(null)
       setOnFetch(true)
       const fileSizeInMegabytes = file.size / 10 ** 6 // get file size in MB
       const server = appData.fileStagerServerUrl
-      const response = await axios.post(`${server}/ipfs/getPaymentAddr`, {
+      const response = await axios.post(`${server}/ipfs/getBchCost`, {
         sizeInMb: fileSizeInMegabytes
       })
 
-      const { address, bchCost } = response.data
-      setWritePriceData({ address, bchCost })
+      const bchCost = response.data
+      setWritePriceData({ bchCost })
       setOnFetch(false)
     } catch (error) {
       setOnFetch(false)
@@ -41,6 +42,7 @@ const PinClaim = ({ appData }) => {
   }, [appData.fileStagerServerUrl])
 
   const handleFileChange = async (e) => {
+    console.log('handleFileChange')
     const selectedFile = e.target.files[0]
     // Calculate the pin claim price for the selected file
     setFile(selectedFile)
@@ -50,6 +52,7 @@ const PinClaim = ({ appData }) => {
       setWritePriceData(null)
     }
     // update state after file changes
+    console.log('reseting state')
     resetState()
   }
 
@@ -136,9 +139,19 @@ const PinClaim = ({ appData }) => {
     setPobTxid(null)
   }
 
+  const removeFile = (e) => {
+    e.preventDefault()
+    setFile(null)
+    resetState()
+    // remove file from input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
   return (
 
-    <Container className='mt-4'>
+    <Container className='mt-4 mb-5'>
       <h2>
         <FontAwesomeIcon icon={faCloudUploadAlt} className='me-2' />
         Upload and Pin Content
@@ -168,6 +181,7 @@ const PinClaim = ({ appData }) => {
             }}
           >
             <Form.Control
+              ref={fileInputRef}
               type='file'
               onChange={handleFileChange}
               style={{ display: 'none' }}
@@ -178,7 +192,7 @@ const PinClaim = ({ appData }) => {
               {file && !onFetch && (
                 <>
                   {file?.name && <p>{file.name}</p>}
-                  <Button variant='outline-danger' type='button' onClick={(e) => { e.preventDefault(); setFile(null) }}>
+                  <Button variant='outline-danger' type='button' onClick={removeFile}>
                     Remove
                   </Button>
 
