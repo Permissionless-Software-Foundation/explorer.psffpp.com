@@ -52,13 +52,13 @@ function NavMenu (props) {
             >
               Upload
             </NavLink>
-            <NavLink
+            {/*      <NavLink
               className={currentPath === '/pin-claim-bch' ? 'nav-link-active' : 'nav-link-inactive'}
               to='/pin-claim-bch'
               onClick={handleClickEvent}
             >
               Upload-BCH
-            </NavLink>
+            </NavLink> */}
 
             <NavLink
               className={(currentPath === '/bch') ? 'nav-link-active' : 'nav-link-inactive'}
