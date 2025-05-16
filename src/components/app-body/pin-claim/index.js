@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react'
+/**
+ *  This component is used to upload and pin a file with BCH or PSF tokens
+ */
+import React, { useEffect, useCallback, useState, useMemo, useRef } from 'react'
 import { Form, Button, Container, Alert, Spinner } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons'
-import PSFFPP from 'psffpp/index.js'
+import PinClaimAsync from '../../../services/pin-claim-async'
 
 const PinClaim = ({ appData }) => {
-  const { serverUrl, wallet } = appData
-  const [writePrice, setWritePrice] = useState(null)
+  const { serverUrl } = appData
   const [file, setFile] = useState(null)
   const [error, setError] = useState('')
   const [onFetch, setOnFetch] = useState(false)
@@ -14,52 +16,74 @@ const PinClaim = ({ appData }) => {
   const [cid, setCid] = useState(null)
   const [claimTxid, setClaimTxid] = useState(null)
   const [pobTxid, setPobTxid] = useState(null)
-  const fileInputRef = React.useRef(null)
-  // Get write price
-  useEffect(() => {
-    const fetchWritePrice = async () => {
-      try {
-        setOnFetch(true)
-        const price = await wallet.getPsfWritePrice()
-        console.log('price: ', price)
-        setWritePrice(price)
-        setOnFetch(false)
-      } catch (error) {
-        setOnFetch(false)
-        console.error('Error fetching write price: ', error)
-        setError('Error fetching write price.')
-      }
-    }
-    fetchWritePrice()
-  }, [wallet, writePrice])
+  const [pinWithPSF, setPinWithPSF] = useState(false)
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0]
-    // Calculate the pin claim price for the selected file
-    setFile(selectedFile)
-    if (selectedFile) {
-      const price = calculatePinClaimPrice(selectedFile.size, writePrice)
-      setPinClaimPrice(price)
-    } else {
+  const fileInputRef = useRef(null)
+
+  // Instance of pin claim service
+  const pinClaimAsync = useMemo(() => {
+    return new PinClaimAsync({
+      server: appData.fileStagerServerUrl,
+      wallet: appData.wallet
+    })
+  }, [appData.fileStagerServerUrl, appData.wallet])
+
+  // Handle file change
+  const handleFileChange = async (e) => {
+    try {
+      const selectedFile = e.target.files[0]
+      // Calculate the pin claim price for the selected file
+      setFile(selectedFile)
       setPinClaimPrice(null)
+
+      if (selectedFile) {
+        const price = await calculatePinClaimPrice(selectedFile.size)
+        setPinClaimPrice(price)
+      } else {
+        setPinClaimPrice(null)
+      }
+      // update state after file changes
+      resetState()
+    } catch (error) {
+      setError(error.message)
+      console.error('Error uploading file: ', error)
     }
-    // update state after file changes
-    resetState()
   }
   // Calculate the pin claim price for the selected file
-  const calculatePinClaimPrice = (fileSize, writePrice) => {
-    // Calculate the write cost
-    const fileSizeInMegabytes = (fileSize / 10 ** 6).toFixed(2)
-    console.log('file size MB', fileSizeInMegabytes)
-    const dataCost = writePrice * fileSizeInMegabytes
-    console.log('datacost', dataCost)
-    const minCost = writePrice
-    console.log('minCost', minCost)
-    let actualCost = minCost
-    if (dataCost > minCost) actualCost = dataCost
-    return actualCost.toFixed(8)
+  const calculatePinClaimPrice = useCallback(async (file) => {
+    console.log('pinWithPSF: ', pinWithPSF)
+    if (pinWithPSF) {
+      return await pinClaimAsync.fetchPSFWritePrice(file)
+    } else {
+      return await pinClaimAsync.fetchBCHWritePrice(file)
+    }
+  }, [pinWithPSF, pinClaimAsync])
+
+  // Submit the pin claim
+  const submitPinClaim = async (file, cid, pinWithPSF) => {
+    try {
+      setOnFetch(true)
+
+      let result = {}
+      if (pinWithPSF) {
+        result = await pinClaimAsync.pinClaimPSF(file, cid)
+      } else {
+        result = await pinClaimAsync.pinClaimBCH(file, cid)
+      }
+      console.log('pobTxid: ', result.pobTxid)
+      console.log('claimTxid: ', result.claimTxid)
+      setPobTxid(result.pobTxid)
+      setClaimTxid(result.claimTxid)
+      setError('')
+      setOnFetch(false)
+    } catch (error) {
+      setOnFetch(false)
+      setError(error.message)
+      console.error('Error uploading file: ', error)
+    }
   }
 
+  // Upload the file to the server
   const uploadFile = async (e) => {
     e.preventDefault()
     try {
@@ -86,41 +110,15 @@ const PinClaim = ({ appData }) => {
     }
   }
 
-  const pinClaim = async (e) => {
-    e.preventDefault()
-    try {
-      setOnFetch(true)
-
-      const wallet = appData.wallet
-      const psffpp = new PSFFPP({ wallet })
-
-      const fileSizeInMegabytes = file.size / 10 ** 6 // get file size in MB
-      // Generate a Pin Claim
-      const pinObj = {
-        cid,
-        filename: file.name,
-        fileSizeInMegabytes
-      }
-      const { pobTxid, claimTxid } = await psffpp.createPinClaim(pinObj)
-      console.log('pobTxid: ', pobTxid)
-      console.log('claimTxid: ', claimTxid)
-      setPobTxid(pobTxid)
-      setClaimTxid(claimTxid)
-      setError('')
-      setOnFetch(false)
-    } catch (error) {
-      setOnFetch(false)
-      console.error('Error uploading file: ', error)
-      setError(error.message)
-    }
-  }
-
+  // Reset the state
   const resetState = () => {
     setCid(null)
     setClaimTxid(null)
     setPobTxid(null)
+    setError('')
   }
 
+  // Remove the file from the input
   const removeFile = (e) => {
     e.preventDefault()
     setFile(null)
@@ -131,9 +129,30 @@ const PinClaim = ({ appData }) => {
     }
   }
 
-  return (
+  // Calculate the pin claim price for the selected file
+  // This is called when the file changes to update the pin claim price
+  useEffect(() => {
+    try {
+      const calculatePrice = async () => {
+        if (file) {
+          setPinClaimPrice(null)
 
-    <Container className='mt-4'>
+          const price = await calculatePinClaimPrice(file.size)
+          setPinClaimPrice(price)
+        } else {
+          setPinClaimPrice(null)
+        }
+      }
+      calculatePrice()
+    } catch (error) {
+      console.error('Error calculating pin claim price: ', error)
+      setError(error.message)
+    }
+  }, [file, pinWithPSF, calculatePinClaimPrice])
+
+  // Render the component
+  return (
+    <Container className='mt-4 mb-4'>
       <h2>
         <FontAwesomeIcon icon={faCloudUploadAlt} className='me-2' />
         Upload and Pin Content
@@ -159,7 +178,8 @@ const PinClaim = ({ appData }) => {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              position: 'relative'
             }}
           >
             <Form.Control
@@ -198,6 +218,25 @@ const PinClaim = ({ appData }) => {
                 </div>
               )}
             </label>
+
+            <div style={{
+              position: 'absolute',
+              bottom: '10px',
+              left: '10px'
+            }}
+            >
+              <Form.Check
+                type='switch'
+                id='custom-switch'
+                label={pinWithPSF ? 'Toggle to Pin With BCH' : 'Toggle to Pin With PSF Tokens'}
+                checked={pinWithPSF}
+                onChange={(e) => setPinWithPSF(e.target.checked)}
+                style={{
+                  cursor: 'pointer',
+                  '& *': { cursor: 'pointer' }
+                }}
+              />
+            </div>
           </div>
           <Form.Text className='text-muted'>
             <span>
@@ -206,13 +245,20 @@ const PinClaim = ({ appData }) => {
             <br />
             <span>Selected Server : {appData.fileStagerServerUrl}</span>
             <br />
+            {file && (
+              <span>
+                {file.name} Pin claim price: {' '}
+                {pinClaimPrice === null
+                  ? (
+                    <Spinner animation='border' size='sm' />
+                    )
+                  : (
+                    <strong>{pinClaimPrice} {pinWithPSF ? 'PSF Tokens' : 'BCH'}</strong>
+                    )}
+              </span>
+            )}
           </Form.Text>
-          {file && (
-            <Form.Text className='text-muted'>
-              <span>{file.name} Pin claim price: <strong>{pinClaimPrice} PSF Tokens</strong></span>
 
-            </Form.Text>
-          )}
         </Form.Group>
 
         {error && <Alert variant='danger'>{error}</Alert>}
@@ -228,7 +274,7 @@ const PinClaim = ({ appData }) => {
         )}
         {cid && !claimTxid && !pobTxid && (
           <div className='d-flex justify-content-center'>
-            <Button variant='primary' type='submit' onClick={pinClaim} disabled={onFetch}>
+            <Button variant='primary' type='submit' onClick={(e) => submitPinClaim(file, cid, pinWithPSF)} disabled={onFetch}>
               Pin File
             </Button>
           </div>
