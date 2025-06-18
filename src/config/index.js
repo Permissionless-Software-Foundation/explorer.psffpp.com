@@ -12,8 +12,15 @@ const config = {
   // Backup Info that goes into the Footer.
   ghPagesUrl: 'https://permissionless-software-foundation.github.io/react-bootstrap-web3-spa/',
   ghRepo: 'https://github.com/Permissionless-Software-Foundation/explorer.psffpp.com',
-  radicleUrl: 'https://app.radicle.network/seeds/maple.radicle.garden/rad:git:hnrkd5cjwwb5tzx37hq9uqm5ubon7ee468xcy/remotes/hyyycncbn9qzqmobnhjq9rry6t4mbjiadzjoyhaknzxjcz3cxkpfpc'
+  radicleUrl: 'https://app.radicle.network/seeds/maple.radicle.garden/rad:git:hnrkd5cjwwb5tzx37hq9uqm5ubon7ee468xcy/remotes/hyyycncbn9qzqmobnhjq9rry6t4mbjiadzjoyhaknzxjcz3cxkpfpc',
 
+  // Default server url
+  defaultServerUrl: 'https://free-bch.fullstack.cash',
+  // defaultServerUrl: 'http://localhost:',
+
+  // Default file stager server url
+  defaultFileStagerServerUrl: 'https://file-stage.fullstack.cash'
+  // defaultFileStagerServerUrl: 'http://localhost:5040'
 }
 
 export default config
