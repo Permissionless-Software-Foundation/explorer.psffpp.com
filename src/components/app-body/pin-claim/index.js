@@ -1,6 +1,7 @@
 /**
  *  This component is used to upload and pin a file with BCH or PSF tokens
  */
+
 import React, { useEffect, useCallback, useState, useMemo, useRef } from 'react'
 import { Form, Button, Container, Alert, Spinner } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -135,6 +136,8 @@ const PinClaim = ({ appData }) => {
     try {
       const calculatePrice = async () => {
         if (file) {
+          console.log('pin-claim/index.js/useEffect() file.size: ', file.size)
+
           setPinClaimPrice(null)
 
           const price = await calculatePinClaimPrice(file.size)
