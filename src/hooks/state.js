@@ -4,6 +4,7 @@ import useLocalStorageState from 'use-local-storage-state'
 import AppUtil from '../util'
 
 import { useLocation } from 'react-router-dom'
+import config from '../config'
 
 function useAppState () {
   const location = useLocation()
@@ -12,8 +13,8 @@ function useAppState () {
   const [lsState, setLSState, { removeItem }] = useLocalStorageState('bchWalletState-template', {
     ssr: true,
     defaultValue: {
-      serverUrl: 'https://free-bch.fullstack.cash', // Default server
-      fileStagerServerUrl: 'https://file-stager.fullstack.cash' // Default file stager server url
+      serverUrl: config.defaultServerUrl, // Default server
+      fileStagerServerUrl: config.defaultFileStagerServerUrl // Default file stager server url
     }
   })
 
@@ -24,7 +25,7 @@ function useAppState () {
   const [menuState, setMenuState] = useState(0)
   const [wallet, setWallet] = useState(false)
   const [servers, setServers] = useState([])
-  const [defaultFileStagerServerUrl] = useState('https://file-stage.fullstack.cash') // Default file stager server url
+  const [defaultFileStagerServerUrl] = useState(config.defaultFileStagerServerUrl) // Default file stager server url
   const [fileStagerServerUrl, setFileStagerServerUrl] = useState(lsState.fileStagerServerUrl || defaultFileStagerServerUrl) // Selected file stager server url
 
   // Startup state management
