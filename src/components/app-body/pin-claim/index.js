@@ -33,16 +33,9 @@ const PinClaim = ({ appData }) => {
   const handleFileChange = async (e) => {
     try {
       const selectedFile = e.target.files[0]
-      // Calculate the pin claim price for the selected file
+      // Set the file and reset price - useEffect will calculate the new price
       setFile(selectedFile)
       setPinClaimPrice(null)
-
-      if (selectedFile) {
-        const price = await calculatePinClaimPrice(selectedFile.size)
-        setPinClaimPrice(price)
-      } else {
-        setPinClaimPrice(null)
-      }
       // update state after file changes
       resetState()
     } catch (error) {
@@ -50,6 +43,7 @@ const PinClaim = ({ appData }) => {
       console.error('Error uploading file: ', error)
     }
   }
+
   // Calculate the pin claim price for the selected file
   const calculatePinClaimPrice = useCallback(async (file) => {
     console.log('pinWithPSF: ', pinWithPSF)

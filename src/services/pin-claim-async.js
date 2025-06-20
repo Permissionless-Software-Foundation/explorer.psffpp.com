@@ -59,6 +59,8 @@ class PinClaimAsync {
 
   async pinClaimBCH (file, cid) {
     try {
+      await this.wallet.initialize()
+
       console.log('Try to pin file with BCH Payment')
       const fileSizeInMegabytes = file.size / 10 ** 6 // get file size in MB
       const response = await axios.post(`${this.server}/ipfs/getPaymentAddr`, {
