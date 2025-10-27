@@ -39,6 +39,12 @@ function useAppState () {
   const [hideSpinner, setHideSpinner] = useState(false)
   const [denyClose, setDenyClose] = useState(false)
 
+  const [isSingleView, setIsSingleView] = useState(false)
+  // Background process state
+  const [asyncBackGroundInitState, setAsyncBackGroundInitState] = useState({
+    bchInitLoaded: false, slpInitLoaded: false, asyncBackgroundFinished: false
+  })
+
   // The wallet state makes this a true progressive web app (PWA). As
   // balances, UTXOs, and tokens are retrieved, this state is updated.
   // properties are enumerated here for the purpose of documentation.
@@ -98,6 +104,25 @@ function useAppState () {
     }
   }
 
+  // Update background state
+  function updateBackGroundInitState (inObj = {}) {
+    try {
+      setAsyncBackGroundInitState(oldState => {
+        // console.log('background old state: ', oldState)
+
+        const state = Object.assign({}, oldState, inObj)
+        // console.log('background state: ', state)
+
+        return state
+      })
+
+    // console.log(`New wallet state: ${JSON.stringify(bchWalletState, null, 2)}`)
+    } catch (err) {
+      console.error('Error in App.js updateBackGroundInitState()')
+      throw err
+    }
+  }
+
   return {
     serverUrl,
     setServerUrl,
@@ -132,7 +157,11 @@ function useAppState () {
     currentPath: location.pathname,
     defaultFileStagerServerUrl,
     fileStagerServerUrl,
-    setFileStagerServerUrl
+    setFileStagerServerUrl,
+    setIsSingleView,
+    isSingleView,
+    asyncBackGroundInitState,
+    updateBackGroundInitState
   }
 }
 
