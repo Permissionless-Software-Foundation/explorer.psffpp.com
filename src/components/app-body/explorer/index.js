@@ -1,6 +1,6 @@
 // Global libraries
-import React, { useEffect, useState, useCallback } from 'react'
-import { Spinner } from 'react-bootstrap'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
+import { Spinner, Button } from 'react-bootstrap'
 import Pagination from './pagination'
 import axios from 'axios'
 
@@ -12,6 +12,10 @@ const Explorer = ({ appData }) => {
   const [onFetch, setOnFetch] = useState(false) // Flag for prevent multiple fetch
   const [success, setSuccess] = useState(false) // Flag for prevent multiple fetch on component mount
   const [error, setError] = useState(null) // error message
+
+  // Pagination ref.
+  const paginationRef = useRef()
+
   // Fetch data from the server
   const fetchData = useCallback(async (toPage = 1) => {
     try {
@@ -45,9 +49,20 @@ const Explorer = ({ appData }) => {
     }
   }, [appData, onFetch, success, fetchData])
 
+  // Refresh btn
+  const handleRefresh = async () => {
+    paginationRef.current.restartPagination()
+    fetchData(1)
+  }
+
   return (
     <div>
-      {success && !error && <Pagination pins={pins} appData={appData} onPageChange={fetchData} onFetch={onFetch} />}
+      {success && !error && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1em' }}>
+          <Button variant='primary' className='ms-lg-4 action-button' onClick={handleRefresh} disabled={onFetch}>Refresh</Button>
+          <Pagination pins={pins} appData={appData} onPageChange={fetchData} onFetch={onFetch} ref={paginationRef} />
+        </div>
+      )}
       {!onFetch && success && !error && <ExplorerTable pins={pins} appData={appData} />}
       {onFetch && (
         <div style={{ height: '70vh' }} className='balance-spinner-container d-flex justify-content-center align-items-center'>

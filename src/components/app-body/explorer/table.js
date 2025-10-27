@@ -1,7 +1,50 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faXmark, faThumbtack, faClock } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faXmark, faThumbtack, faClock, faCopy } from '@fortawesome/free-solid-svg-icons'
 import '../../../App.css'
+
+const CustomCopyOnClick = (props) => {
+  // State
+  const [iconVis, setIconVis] = useState(true)
+  // Props
+  const { appData, value } = props
+  // App Util
+  const { appUtil } = appData
+
+  // Function to copy the value to the clipboard.
+  const handleCopyToClipboard = useCallback(async (event) => {
+    appUtil.copyToClipboard(value)
+
+    // hide icon in order to show the copied message
+    setIconVis(false)
+
+    // restart icon visibility after 1 second
+    setTimeout(function () {
+      setIconVis(true)
+    }, 1000)
+  }, [value, appUtil])
+
+  return (
+    <>
+      {iconVis && (
+        <FontAwesomeIcon
+          icon={faCopy} size='lg'
+          id='table-icon'
+          onClick={(e) => handleCopyToClipboard(e)}
+          style={{ cursor: 'pointer', color: '#6366f1' }}
+        />
+      )}
+      {!iconVis && (
+        <span
+          id='table-word'
+          style={{ color: 'green' }}
+        >
+          Copied!
+        </span>
+      )}
+    </>
+  )
+}
 
 const ExplorerTable = ({ pins, appData }) => {
   const truncateCid = (cid) => {
@@ -66,7 +109,7 @@ const ExplorerTable = ({ pins, appData }) => {
                     <FontAwesomeIcon icon={faClock} className='clock-icon' />
                     )}
               </td>
-              <td className='explorer-table-cell'>{truncateCid(pin.cid)}</td>
+              <td className='explorer-table-cell'><span>{truncateCid(pin.cid)}</span><CustomCopyOnClick value={pin.cid} appData={appData} /></td>
               <td className='explorer-table-cell'>
                 <button
                   onClick={() => handleView(pin)}
