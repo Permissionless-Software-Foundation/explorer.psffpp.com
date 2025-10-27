@@ -2,7 +2,7 @@
  *
  * Table pagination component
  */
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button, FormControl, InputGroup } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons'
@@ -10,8 +10,19 @@ import '../../../App.css'
 
 const Pagination = (props) => {
   // States
-  const { onPageChange, onFetch } = props
+  const { onPageChange, onFetch, ref } = props
   const [currentPage, setCurrentPage] = useState(1)
+
+  // Set reset function .
+  useEffect(() => {
+    if (ref) {
+      ref.current = {
+        restartPagination: () => {
+          setCurrentPage(1)
+        }
+      }
+    }
+  }, [ref])
 
   const handlePageInput = (e) => {
     const value = e.target.value
@@ -40,7 +51,7 @@ const Pagination = (props) => {
   }
 
   return (
-    <div className='d-flex justify-content-end me-lg-4'>
+    <div className='d-flex justify-content-end me-lg-4 w-100'>
       <div className='col-12 col-sm-4 col-md-3 col-lg-2 px-0'>
         <InputGroup className='pagination'>
           <Button
