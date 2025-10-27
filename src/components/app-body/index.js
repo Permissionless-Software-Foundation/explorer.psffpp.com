@@ -24,6 +24,9 @@ import SignMessage from './sign/index.js'
 import Explorer from './explorer/index.js'
 import ServerSelectView from './configuration/index.js'
 import PinClaim from './pin-claim/index.js'
+// import ServerSelectView from './configuration/select-server-view'
+import UserDataReview from './user-data-review'
+
 function AppBody (props) {
   // Dependency injection through props
   const appData = props.appData
@@ -44,7 +47,7 @@ function AppBody (props) {
         <Route path='/explorer' element={<Explorer appData={appData} />} />
         <Route path='/configuration' element={<ServerSelectView appData={appData} />} />
         <Route path='/pin-claim' element={<PinClaim appData={appData} />} />
-
+        <Route path='/user-data/:tokenId' element={<UserDataReview appData={appData} />} />
       </Routes>
       {/** Show in all paths except the servers view */}
       {/* {appData.currentPath !== '/servers' && <SelectServerButton linkTo='/servers' appData={appData} />} */}
