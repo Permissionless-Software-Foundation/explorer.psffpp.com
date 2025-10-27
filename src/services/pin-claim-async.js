@@ -31,15 +31,22 @@ class PinClaimAsync {
     }
   }
 
-  async fetchPSFWritePrice (file) {
+  async fetchPSFWritePrice (fileSize) {
     try {
-      if (!file) { return }
+      if (!fileSize) { return }
       console.log('Calculating PSF cost for file')
 
       const writePrice = await this.wallet.getPsfWritePrice()
       console.log('price: ', writePrice)
-      const fileSizeInMegabytes = (file.size / 10 ** 6).toFixed(2)
+
+      const fileSizeInMegabytes = (fileSize / 10 ** 6).toFixed(2)
+      // const fileSizeInMegabytes = (fileSize / 1024000).toFixed(2)
       console.log('file size MB', fileSizeInMegabytes)
+
+      if (isNaN(fileSizeInMegabytes)) {
+        throw new Error('File size is not a number')
+      }
+
       const dataCost = writePrice * fileSizeInMegabytes
       console.log('datacost', dataCost)
       const minCost = writePrice
