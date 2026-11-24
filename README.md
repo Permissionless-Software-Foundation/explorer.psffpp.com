@@ -6,6 +6,8 @@ This is a web-based single page app (SPA) written in React. It provides non-cust
 
 On top of that base, are features and screens for interacting with the PSFFPP network.
 
+Pinning a file is paid in BCH (satoshis), per PS010 v2.0.0: the app quotes the price from the file stager, sends the payment to the pin-service payout address, and the stager publishes the Pin Claim with the payment txid. No PSF tokens are involved.
+
 ## Installation
 ```bash
 git clone https://github.com/Permissionless-Software-Foundation/explorer.psffpp.com

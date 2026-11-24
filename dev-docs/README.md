@@ -26,3 +26,26 @@ After initialization, the InitailizedView is displayed. This loads the AppBody, 
 
 ## Loading of Wallet
 The wallet library [minimal-slp-wallet](https://www.npmjs.com/package/minimal-slp-wallet) is loaded at startup, and initialized with a web3 back end server. By default, the back-end server is free-bch.fullstack.cash. However, a list of back end servers provided by the [PSF](https://psfoundation.cash) are loaded into a drop-down from a GitHub
+
+## Pinning a file (BCH payment, PS010 v2.0.0)
+
+The `pin-claim` view and the `pin-claim-async` service implement the client side
+of PS010 v2.0.0 Phase 1. The [file stager](https://github.com/Permissionless-Software-Foundation/ipfs-file-stager)
+is the gateway:
+
+1. The file is uploaded to the stager (`POST {stager}/ipfs/upload`), which returns
+   a CID. The stager holds the file for 24 hours while the claim is made.
+2. The view quotes the price with `POST {stager}/ipfs/getBchCost`, which returns
+   `{ address, satsRequired }`. The address is the pin-service payout address and
+   `satsRequired` already includes the locked 100 KB minimum charge.
+3. On 'Pay and Pin File', the wallet sends exactly `satsRequired` satoshis to
+   `address`. That payment txid is returned to the app.
+4. The view calls `POST {stager}/ipfs/createPinClaim` with
+   `{ cid, filename, paymentTxid }`. The stager verifies the payment pays the
+   payout address and publishes the Pin Claim, returning `{ claimTxid }`.
+5. The UI shows the payment txid and then the claim txid. The pin-service
+   validates the payment and pins the file.
+
+There is no PSF-token path: pins are paid in BCH (satoshis) only. The wallet does
+not need any tokens to pin content; it only needs enough BCH to cover the price
+plus the network fee.
