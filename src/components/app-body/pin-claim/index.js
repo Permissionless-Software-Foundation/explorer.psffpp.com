@@ -1,5 +1,5 @@
 /**
- *  This component is used to upload and pin a file with BCH or PSF tokens
+ *  This component is used to upload and pin a file, paid in BCH.
  */
 
 import React, { useEffect, useCallback, useState, useMemo, useRef } from 'react'
@@ -16,8 +16,7 @@ const PinClaim = ({ appData }) => {
   const [pinClaimPrice, setPinClaimPrice] = useState(null)
   const [cid, setCid] = useState(null)
   const [claimTxid, setClaimTxid] = useState(null)
-  const [pobTxid, setPobTxid] = useState(null)
-  const [pinWithPSF, setPinWithPSF] = useState(false)
+  const [paymentTxid, setPaymentTxid] = useState(null)
 
   const fileInputRef = useRef(null)
 
@@ -44,37 +43,29 @@ const PinClaim = ({ appData }) => {
     }
   }
 
-  // Calculate the pin claim price for the selected file
+  // Get a price quote for the selected file from the file stager. The quote is
+  // { address, satsRequired }; the 100 KB floor is already included.
   const calculatePinClaimPrice = useCallback(async (file) => {
-    console.log('pinWithPSF: ', pinWithPSF)
-    if (pinWithPSF) {
-      return await pinClaimAsync.fetchPSFWritePrice(file)
-    } else {
-      return await pinClaimAsync.fetchBCHWritePrice(file)
-    }
-  }, [pinWithPSF, pinClaimAsync])
+    return await pinClaimAsync.fetchBchCost(file)
+  }, [pinClaimAsync])
 
   // Submit the pin claim
-  const submitPinClaim = async (file, cid, pinWithPSF) => {
+  const submitPinClaim = async (file, cid) => {
     try {
       setOnFetch(true)
 
-      let result = {}
-      if (pinWithPSF) {
-        result = await pinClaimAsync.pinClaimPSF(file, cid)
-      } else {
-        result = await pinClaimAsync.pinClaimBCH(file, cid)
-      }
-      console.log('pobTxid: ', result.pobTxid)
+      const result = await pinClaimAsync.pinClaimBCH(file, cid)
+      console.log('paymentTxid: ', result.paymentTxid)
       console.log('claimTxid: ', result.claimTxid)
-      setPobTxid(result.pobTxid)
+
+      setPaymentTxid(result.paymentTxid)
       setClaimTxid(result.claimTxid)
       setError('')
       setOnFetch(false)
     } catch (error) {
       setOnFetch(false)
       setError(error.message)
-      console.error('Error uploading file: ', error)
+      console.error('Error pinning file: ', error)
     }
   }
 
@@ -109,7 +100,7 @@ const PinClaim = ({ appData }) => {
   const resetState = () => {
     setCid(null)
     setClaimTxid(null)
-    setPobTxid(null)
+    setPaymentTxid(null)
     setError('')
   }
 
@@ -134,7 +125,7 @@ const PinClaim = ({ appData }) => {
 
           setPinClaimPrice(null)
 
-          const price = await calculatePinClaimPrice(file.size)
+          const price = await calculatePinClaimPrice(file)
           setPinClaimPrice(price)
         } else {
           setPinClaimPrice(null)
@@ -145,7 +136,7 @@ const PinClaim = ({ appData }) => {
       console.error('Error calculating pin claim price: ', error)
       setError(error.message)
     }
-  }, [file, pinWithPSF, calculatePinClaimPrice])
+  }, [file, calculatePinClaimPrice])
 
   // Render the component
   return (
@@ -157,9 +148,10 @@ const PinClaim = ({ appData }) => {
 
       <p>
         Use this page to upload a file and then pin it to the PSFFPP network.
-        Note that your wallet must have BCH and PSF tokens to pay for the pinning of content.
-        Files must be less than 100MB is size. The cost to pin content is roughly
-        $0.01 per MB, and pins last for one year. Pins can be renewed at any time.
+        Pinning is paid in BCH (satoshis); your wallet does not need any tokens.
+        Files must be less than 100MB in size. The cost to pin content is roughly
+        $0.01 per MB, with a 100 KB minimum, and pins last for one year. Pins can
+        be renewed at any time.
       </p>
 
       <Form>
@@ -215,25 +207,6 @@ const PinClaim = ({ appData }) => {
                 </div>
               )}
             </label>
-
-            <div style={{
-              position: 'absolute',
-              bottom: '10px',
-              left: '10px'
-            }}
-            >
-              <Form.Check
-                type='switch'
-                id='custom-switch'
-                label={pinWithPSF ? 'Toggle to Pin With BCH' : 'Toggle to Pin With PSF Tokens'}
-                checked={pinWithPSF}
-                onChange={(e) => setPinWithPSF(e.target.checked)}
-                style={{
-                  cursor: 'pointer',
-                  '& *': { cursor: 'pointer' }
-                }}
-              />
-            </div>
           </div>
           <Form.Text className='text-muted'>
             <span>
@@ -250,7 +223,11 @@ const PinClaim = ({ appData }) => {
                     <Spinner animation='border' size='sm' />
                     )
                   : (
-                    <strong>{pinClaimPrice} {pinWithPSF ? 'PSF Tokens' : 'BCH'}</strong>
+                    <strong>
+                      {pinClaimPrice.satsRequired} sats
+                      {' '}
+                      ({pinClaimPrice.satsRequired / 10 ** 8} BCH)
+                    </strong>
                     )}
               </span>
             )}
@@ -260,19 +237,20 @@ const PinClaim = ({ appData }) => {
 
         {error && <Alert variant='danger'>{error}</Alert>}
         {cid && <Alert variant='success'>Upload Success : CID: {cid}</Alert>}
+        {paymentTxid && <Alert variant='success'>Payment Sent : Payment Txid: {paymentTxid} </Alert>}
         {claimTxid && <Alert variant='success'>Pin Claim Success : Claim Txid: {claimTxid} </Alert>}
 
-        {!cid && !claimTxid && !pobTxid && (
+        {!cid && !claimTxid && !paymentTxid && (
           <div className='d-flex justify-content-center'>
             <Button variant='primary' type='submit' onClick={uploadFile} disabled={!file || onFetch}>
               Upload File
             </Button>
           </div>
         )}
-        {cid && !claimTxid && !pobTxid && (
+        {cid && !claimTxid && !paymentTxid && (
           <div className='d-flex justify-content-center'>
-            <Button variant='primary' type='submit' onClick={(e) => submitPinClaim(file, cid, pinWithPSF)} disabled={onFetch}>
-              Pin File
+            <Button variant='primary' type='submit' onClick={(e) => submitPinClaim(file, cid)} disabled={onFetch}>
+              Pay and Pin File
             </Button>
           </div>
         )}

@@ -1,8 +1,11 @@
 /**
- * This service is used to pin a file with BCH or PSF payment
+ * This service is used to pin a file to the PSFFPP network, paid in BCH.
+ *
+ * PS010 v2.0.0 Phase 1: the file stager is the gateway. It quotes the cost in
+ * satoshis (from the pin-service), the wallet pays that amount to the payout
+ * address, and the stager publishes the Pin Claim with the payment txid.
  */
 import axios from 'axios'
-import PSFFPP from 'psffpp/index.js'
 import AppUtil from '../util/index.js'
 const appUtil = new AppUtil()
 
@@ -12,115 +15,72 @@ class PinClaimAsync {
     this.server = inObj.server
   }
 
-  async fetchBCHWritePrice (file) {
+  // Get a price quote from the file stager: the BCH payout address and the
+  // amount to pay, in satoshis. The amount already includes the 100 KB minimum
+  // charge, so no floor is applied here.
+  async fetchBchCost (file) {
     try {
       if (!file) { return }
       console.log('Calculating BCH cost for file')
 
-      const fileSizeInMegabytes = file.size / 10 ** 6 // get file size in MB
+      const sizeInMb = file.size / 10 ** 6 // get file size in MB
       const response = await axios.post(`${this.server}/ipfs/getBchCost`, {
-        sizeInMb: fileSizeInMegabytes
+        sizeInMb
       })
 
-      const bchCost = response.data
-      console.log(`Bch Cost ${bchCost}`)
-      return bchCost
+      const { address, satsRequired } = response.data
+      console.log(`Quote: ${satsRequired} sats to ${address}`)
+
+      if (!address) {
+        throw new Error('The file stager did not return a payment address.')
+      }
+      if (!satsRequired) {
+        throw new Error('The file stager did not return the required sats.')
+      }
+
+      return { address, satsRequired }
     } catch (error) {
       console.log('Error fetching BCH cost', error)
       throw error
     }
   }
 
-  async fetchPSFWritePrice (fileSize) {
-    try {
-      if (!fileSize) { return }
-      console.log('Calculating PSF cost for file')
-
-      const writePrice = await this.wallet.getPsfWritePrice()
-      console.log('price: ', writePrice)
-
-      const fileSizeInMegabytes = (fileSize / 10 ** 6).toFixed(2)
-      // const fileSizeInMegabytes = (fileSize / 1024000).toFixed(2)
-      console.log('file size MB', fileSizeInMegabytes)
-
-      if (isNaN(fileSizeInMegabytes)) {
-        throw new Error('File size is not a number')
-      }
-
-      const dataCost = writePrice * fileSizeInMegabytes
-      console.log('datacost', dataCost)
-      const minCost = writePrice
-      console.log('minCost', minCost)
-      let actualCost = minCost
-      if (dataCost > minCost) actualCost = dataCost
-
-      const psfCost = actualCost.toFixed(8)
-      console.log(`PSF Cost ${psfCost}`)
-
-      return psfCost
-    } catch (error) {
-      console.log('Error fetching PSF cost', error)
-      throw error
-    }
-  }
-
+  // Pay for the pin in BCH, then have the file stager publish the Pin Claim.
+  //
+  // 1. Quote the price (address + sats) from the stager.
+  // 2. Send exactly that many sats to the payout address.
+  // 3. Ask the stager to publish the claim, referencing the payment txid.
   async pinClaimBCH (file, cid) {
     try {
       await this.wallet.initialize()
 
       console.log('Try to pin file with BCH Payment')
-      const fileSizeInMegabytes = file.size / 10 ** 6 // get file size in MB
-      const response = await axios.post(`${this.server}/ipfs/getPaymentAddr`, {
-        sizeInMb: fileSizeInMegabytes
-      })
-
-      const { address, bchCost } = response.data
+      const { address, satsRequired } = await this.fetchBchCost(file)
 
       const outputs = []
       outputs.push({
         address,
-        amountSat: this.wallet.bchjs.BitcoinCash.toSatoshi(bchCost)
+        amountSat: satsRequired
       })
 
-      const txid = await this.wallet.send(outputs)
-      console.log('txid: ', txid)
+      const paymentTxid = await this.wallet.send(outputs)
+      console.log('paymentTxid: ', paymentTxid)
 
-      // Wait for the transaction delay
+      // Wait for the payment to propagate before the claim is generated.
       await appUtil.sleep(10000)
 
       // Generate a Pin Claim
       const pinObj = {
         cid,
         filename: file.name,
-        address
+        paymentTxid
       }
       const pinClaimResponse = await axios.post(`${this.server}/ipfs/createPinClaim`, pinObj)
-      const { pobTxid, claimTxid } = pinClaimResponse.data
+      const { claimTxid } = pinClaimResponse.data
 
-      return { pobTxid, claimTxid }
+      return { paymentTxid, claimTxid }
     } catch (error) {
       console.log('Error pinning file with BCH', error)
-      throw error
-    }
-  }
-
-  async pinClaimPSF (file, cid) {
-    try {
-      console.log('Try to pin file with PSF Payment')
-      const psffpp = new PSFFPP({ wallet: this.wallet })
-
-      const fileSizeInMegabytes = file.size / 10 ** 6 // get file size in MB
-      // Generate a Pin Claim
-      const pinObj = {
-        cid,
-        filename: file.name,
-        fileSizeInMegabytes
-      }
-      const { pobTxid, claimTxid } = await psffpp.createPinClaim(pinObj)
-
-      return { pobTxid, claimTxid }
-    } catch (error) {
-      console.log('Error pinning file with PSF', error)
       throw error
     }
   }
