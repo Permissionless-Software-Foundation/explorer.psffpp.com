@@ -10,7 +10,11 @@ function useAppState () {
   const location = useLocation()
 
   // Load Local storage Data
-  const [lsState, setLSState, { removeItem }] = useLocalStorageState('bchWalletState-template', {
+  // v2 key: bumps the storage key so browsers that auto-persisted the OLD
+  // hardcoded file-stager URL (pre env-override) don't keep preferring a stale
+  // default over REACT_APP_FILE_STAGER_SERVER_URL. Explicit user overrides set
+  // via Settings continue to persist and take precedence.
+  const [lsState, setLSState, { removeItem }] = useLocalStorageState('bchWalletState-template-v2', {
     ssr: true,
     defaultValue: {
       serverUrl: config.defaultServerUrl, // Default server
