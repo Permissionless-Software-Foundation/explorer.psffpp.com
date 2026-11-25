@@ -18,8 +18,14 @@ const config = {
   defaultServerUrl: 'https://free-bch.fullstack.cash',
   // defaultServerUrl: 'http://localhost:',
 
-  // Default file stager server url
-  defaultFileStagerServerUrl: 'https://file-stage.fullstack.cash'
+  // Default file stager server url. Overridable so a deployment can be pointed
+  // at a local/self-hosted stager without shipping a different default (PS010
+  // Phase 1: the stager is the gateway).
+  //
+  //   REACT_APP_FILE_STAGER_SERVER_URL=https://my-stager.example.com npm start
+  //
+  defaultFileStagerServerUrl:
+    process.env.REACT_APP_FILE_STAGER_SERVER_URL || 'https://file-stage.fullstack.cash'
   // defaultFileStagerServerUrl: 'http://localhost:5040'
 }
 
