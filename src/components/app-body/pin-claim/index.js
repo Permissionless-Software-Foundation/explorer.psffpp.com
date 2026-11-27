@@ -7,7 +7,7 @@ import { Form, Button, Container, Alert, Spinner } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons'
 import PinClaimAsync from '../../../services/pin-claim-async'
-import { formatFileSize, formatByteCount } from '../../../utils/format-file-size'
+import { formatFileSize } from '../../../utils/format-file-size'
 
 const PinClaim = ({ appData }) => {
   const { serverUrl } = appData
@@ -220,9 +220,7 @@ const PinClaim = ({ appData }) => {
               <span>
                 {file.name}
                 {' '}
-                ({formatFileSize(file.size)}, {formatByteCount(file.size)})
-                {' '}
-                Pin claim price: {' '}
+                ({formatFileSize(file.size)}) Pin claim price: {' '}
                 {pinClaimPrice === null
                   ? (
                     <Spinner animation='border' size='sm' />
