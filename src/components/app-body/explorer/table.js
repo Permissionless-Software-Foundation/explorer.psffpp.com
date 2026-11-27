@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faXmark, faThumbtack, faClock, faCopy } from '@fortawesome/free-solid-svg-icons'
+import { formatFileSize } from '../../../utils/format-file-size'
 import '../../../App.css'
 
 const CustomCopyOnClick = (props) => {
@@ -60,15 +61,6 @@ const ExplorerTable = ({ pins, appData }) => {
   }
   const formatDate = (date) => {
     return new Date(date).toLocaleString()
-  }
-  const formatFileSize = (bytes) => {
-    if (!bytes) return 'N/A'
-    const mb = bytes / (1024 * 1024)
-    if (mb < 0.01) {
-      const kb = bytes / 1024
-      return `${kb.toFixed(2)} KB`
-    }
-    return `${mb.toFixed(2)} MB`
   }
   return (
     <div className='explorer-table-container mb-4'>
